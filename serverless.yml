@@ -1,0 +1,46 @@
+service: e2e-test-db
+frameworkVersion: '3'
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-typescript
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  environment:
+    NODE_OPTIONS: --require ./lambda-wrapper
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+      Resource: 
+        - arn:aws:dynamodb:us-east-1:*:table/MoviesTable
+  timeout: 30
+    
+
+functions:
+  api:
+    handler: src/functions/healthcheck.handler
+    events:
+      - httpApi:
+          path: /{id}
+          method: get
+
+resources:
+  Resources:
+    moviesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: moviesTable
+        AttributeDefinitions:
+          - AttributeName: episodio_id
+            AttributeType: N
+        KeySchema:
+          - AttributeName: episodio_id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
