@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import { logger } from '../lib/logger';
 import { Movie } from '../entities/movie';
 import { MovieRepository } from '../repositories/movie.repositorie';
+import { PersonRepositorie } from '../repositories/person.repositorie';
 require('@dotenvx/dotenvx').config()
 
 const API_URL = process.env.API_URL;
@@ -11,6 +12,7 @@ if (!API_URL) {
 }
 
 const movieRepository= new MovieRepository();
+const personRepositorie =  new PersonRepositorie();
 export async function getMovieData(id: number): Promise<any> {
     const url = `${API_URL}/${id}`;
     logger.info(`url: ${url}`);
@@ -25,5 +27,6 @@ export async function getMovieData(id: number): Promise<any> {
     logger.info(data);
     const movie = data as Movie;
     const result = movieRepository.saveMovie(movie);
+    await personRepositorie.getPersons();
     return result;
 }
